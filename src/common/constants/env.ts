@@ -15,8 +15,8 @@ export const NodeEnvs = {
 
 /* eslint-disable no-process-env */
 const EnvVars = {
-  NodeEnv: (process.env.NODE_ENV ?? NodeEnvs.DEV) as
-    (typeof NodeEnvs)[keyof typeof NodeEnvs],
+  NodeEnv: (process.env.NODE_ENV ??
+    NodeEnvs.DEV) as (typeof NodeEnvs)[keyof typeof NodeEnvs],
   Port: Number(process.env.PORT ?? 3000),
 };
 /* eslint-enable no-process-env */

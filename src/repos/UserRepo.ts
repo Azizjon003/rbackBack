@@ -1,5 +1,7 @@
+import bcyrypt from 'bcrypt';
+
 import prisma from '@src/common/prisma';
-import { IUser } from '@src/models/User.model';
+import { IUser, IUserInput } from '@src/models/User.model';
 
 async function getOne(email: string): Promise<IUser | null> {
   return prisma.user.findFirst({ where: { email } });
@@ -14,16 +16,41 @@ async function getAll(): Promise<IUser[]> {
   return prisma.user.findMany();
 }
 
-async function add(user: IUser): Promise<void> {
-  await prisma.user.create({
+async function add(user: IUserInput): Promise<IUser> {
+  const isUser = await prisma.user.findFirst({ where: { email: user.email } });
+  if (isUser) {
+    throw new Error('User with this email already exists');
+  }
+
+  const passHash = user.password;
+  const saltRounds = 10;
+  const hash = await bcyrypt.hash(passHash, saltRounds);
+  const newUser = await prisma.user.create({
     data: {
       name: user.name,
       email: user.email,
+      password: hash,
     },
   });
+
+  return newUser;
 }
 
-async function update(user: IUser): Promise<void> {
+async function update(user: IUserInput & { id: number }): Promise<void> {
+  const existingUser = await prisma.user.findUnique({ where: { id: user.id } });
+  if (!existingUser) {
+    throw new Error('User not found');
+  }
+
+  const existEmailUser = await prisma.user.findFirst({
+    where: {
+      email: user.email,
+      id: { not: user.id },
+    },
+  });
+  if (existEmailUser) {
+    throw new Error('Another user with this email already exists');
+  }
   await prisma.user.update({
     where: { id: user.id },
     data: {
@@ -41,22 +68,6 @@ async function deleteAllUsers(): Promise<void> {
   await prisma.user.deleteMany();
 }
 
-async function insertMultiple(
-  users: IUser[] | readonly IUser[],
-): Promise<IUser[]> {
-  const created: IUser[] = [];
-  for (const user of users) {
-    const u = await prisma.user.create({
-      data: {
-        name: user.name,
-        email: user.email,
-      },
-    });
-    created.push(u);
-  }
-  return created;
-}
-
 /******************************************************************************
                                 Export default
 ******************************************************************************/
@@ -69,5 +80,4 @@ export default {
   update,
   delete: delete_,
   deleteAllUsers,
-  insertMultiple,
 } as const;
