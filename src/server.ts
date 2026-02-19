@@ -46,8 +46,8 @@ app.use((err: Error, _: Request, res: Response, next: NextFunction) => {
   let status: HttpStatusCodes = HttpStatusCodes.BAD_REQUEST;
   if (err instanceof RouteError) {
     status = err.status;
-    res.status(status).json({ error: err.message });
   }
+  res.status(status).json({ success: false, message: err.message });
   return next(err);
 });
 

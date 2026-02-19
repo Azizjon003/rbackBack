@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
+import ApiResponse from '@src/common/utils/response';
 import { UserSchema } from '@src/models/User.model';
 import UserService from '@src/services/UserService';
 
@@ -23,25 +24,25 @@ const reqValidators = {
 
 async function getAll(_: Req, res: Res) {
   const users = await UserService.getAll();
-  res.status(HttpStatusCodes.OK).json({ users });
+  ApiResponse.success(res, { users });
 }
 
 async function add(req: Req, res: Res) {
   const { user } = reqValidators.add(req.body);
   await UserService.addOne(user);
-  res.status(HttpStatusCodes.CREATED).end();
+  ApiResponse.success(res, null, HttpStatusCodes.CREATED);
 }
 
 async function update(req: Req, res: Res) {
   const { user } = reqValidators.update(req.body);
   await UserService.updateOne(user);
-  res.status(HttpStatusCodes.OK).end();
+  ApiResponse.success(res, null);
 }
 
 async function delete_(req: Req, res: Res) {
   const { id } = reqValidators.delete(req.params);
   await UserService.delete(id);
-  res.status(HttpStatusCodes.OK).end();
+  ApiResponse.success(res, null);
 }
 
 export default {
