@@ -3,3 +3,5 @@ dist/
 **/**/*.log
 tsconfig.tsbuildinfo
 config/
+
+/generated/prisma

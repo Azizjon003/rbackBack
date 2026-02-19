@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique 
+  password  String
+  roles     UserRole[]
+  permissions UserPermission[]
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  @@map("users")
+}
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique       // "ADMIN", "USER", "MODERATOR"
+  description String?
+  created_at  DateTime         @default(now())
+  updated_at  DateTime         @updatedAt
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  user_id    Int
+  role_id    Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, role_id])
+  @@map("user_roles")
+}
+
+
+
+model Permission {
+  id       Int              @id @default(autoincrement())
+  action   String                          // "READ", "WRITE", "DELETE"
+  resource String                          // "/api/users", "/api/dashboard"
+  roles      RolePermission[]
+  users      UserPermission[]
+  created_at DateTime         @default(now())
+  updated_at DateTime         @updatedAt
+
+  @@unique([action, resource])
+  @@map("permissions")
+}
+
+
+
+model RolePermission {
+  role_id       Int
+  permission_id Int
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+  role          Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission    Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@id([role_id, permission_id])
+  @@map("role_permissions")
+}
+
+model UserPermission {
+  user_id       Int
+  permission_id Int
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+  user          User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  permission    Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, permission_id])
+  @@map("user_permissions")
+}
