@@ -1,29 +1,13 @@
-import { z } from 'zod';
-
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
 import ApiResponse from '@src/common/utils/response';
-import AuthService from '@src/services/AuthService';
 
-import { Req, Res } from './common/express-types';
-import parseReq from './common/parseReq';
+import AuthService from './auth.service';
+import { loginValidator, registerValidator } from './auth.validation';
 
-const reqValidators = {
-  login: parseReq(
-    z.object({ email: z.string().email(), password: z.string() }),
-  ),
-  register: parseReq(
-    z.object({
-      email: z.string().email(),
-      password: z.string(),
-      repeatedPassword: z.string(),
-      name: z.string(),
-      surname: z.string(),
-    }),
-  ),
-} as const;
+import type { Req, Res } from '@src/common/types';
 
 const login = async (req: Req, res: Res) => {
-  const { email, password } = reqValidators.login(req.body);
+  const { email, password } = loginValidator(req.body);
   const result = await AuthService.login(email, password);
 
   ApiResponse.success(res, result);
@@ -31,7 +15,7 @@ const login = async (req: Req, res: Res) => {
 
 const register = async (req: Req, res: Res) => {
   const { email, password, repeatedPassword, name, surname } =
-    reqValidators.register(req.body);
+    registerValidator(req.body);
 
   if (password !== repeatedPassword) {
     return ApiResponse.error(res, 'Passwords do not match');

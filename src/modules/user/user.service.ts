@@ -1,7 +1,8 @@
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
 import { RouteError } from '@src/common/utils/route-errors';
-import { IUser, IUserInput } from '@src/models/User.model';
-import UserRepo from '@src/repos/UserRepo';
+
+import { IUser, IUserInput } from './user.model';
+import UserRepo from './user.repo';
 
 const Errors = {
   USER_NOT_FOUND: 'User not found',
@@ -32,7 +33,6 @@ async function deleteOne(id: number): Promise<void> {
 }
 
 export default {
-  Errors,
   getAll,
   addOne,
   updateOne,

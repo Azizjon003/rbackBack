@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { Entity } from './common/types';
+import { Entity } from '@src/common/types';
 
 export const UserSchema = z.object({
   name: z.string().min(1),

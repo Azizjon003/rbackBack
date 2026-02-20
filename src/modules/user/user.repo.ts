@@ -1,8 +1,9 @@
-import bcyrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 
 import { Role } from '@src/common/constants/rbac';
 import prisma from '@src/common/prisma';
-import { IUser, IUserInput } from '@src/models/User.model';
+
+import { IUser, IUserInput } from './user.model';
 
 async function getOne(email: string): Promise<IUser | null> {
   return prisma.user.findFirst({ where: { email } });
@@ -20,15 +21,15 @@ async function getAll(): Promise<IUser[]> {
 async function getByEmail(email: string): Promise<IUser | null> {
   return prisma.user.findFirst({ where: { email } });
 }
+
 async function add(user: IUserInput): Promise<IUser> {
   const isUser = await prisma.user.findFirst({ where: { email: user.email } });
   if (isUser) {
     throw new Error('User with this email already exists');
   }
 
-  const passHash = user.password;
   const saltRounds = 10;
-  const hash = await bcyrypt.hash(passHash, saltRounds);
+  const hash = await bcrypt.hash(user.password, saltRounds);
   const newUser = await prisma.user.create({
     data: {
       name: user.name,
@@ -79,13 +80,10 @@ async function delete_(id: number): Promise<void> {
 async function deleteAllUsers(): Promise<void> {
   await prisma.user.deleteMany();
 }
+
 async function getById(id: number): Promise<IUser | null> {
   return prisma.user.findUnique({ where: { id } });
 }
-
-/******************************************************************************
-                                Export default
-******************************************************************************/
 
 export default {
   getOne,

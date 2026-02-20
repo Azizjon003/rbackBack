@@ -3,8 +3,8 @@ import bcrypt from 'bcrypt';
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
 import Jwt from '@src/common/utils/jwt';
 import { RouteError } from '@src/common/utils/route-errors';
-import { IUser, IUserInput, IUserSafe } from '@src/models/User.model';
-import UserRepo from '@src/repos/UserRepo';
+import { IUser, IUserInput, IUserSafe } from '@src/modules/user/user.model';
+import UserRepo from '@src/modules/user/user.repo';
 
 const Errors = {
   USER_NOT_FOUND: 'User not found',

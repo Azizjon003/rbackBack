@@ -1,22 +1,12 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import path from 'path';
 
-import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
-import Paths from '@src/common/constants/Paths';
-import { RouteError } from '@src/common/utils/route-errors';
-import BaseRouter from '@src/routes/apiRouter';
-
-import EnvVars, { NodeEnvs } from './common/constants/env';
-
-/******************************************************************************
-                                Setup
-******************************************************************************/
+import EnvVars, { NodeEnvs } from '@src/common/constants/env';
+import errorHandler from '@src/middleware/errorHandler';
+import apiRouter from '@src/routes/index';
 
 const app = express();
-
-// **** Middleware **** //
 
 // Basic middleware
 app.use(express.json());
@@ -35,44 +25,10 @@ if (EnvVars.NodeEnv === NodeEnvs.PRODUCTION) {
   }
 }
 
-// Add APIs, must be after middleware
-app.use(Paths._, BaseRouter);
+// API routes
+app.use('/api', apiRouter);
 
-// Add error handler
-app.use((err: Error, _: Request, res: Response, next: NextFunction) => {
-  if (EnvVars.NodeEnv !== NodeEnvs.TEST.valueOf()) {
-    console.error(err);
-  }
-  let status: HttpStatusCodes = HttpStatusCodes.BAD_REQUEST;
-  if (err instanceof RouteError) {
-    status = err.status;
-  }
-  res.status(status).json({ success: false, message: err.message });
-  return next(err);
-});
-
-// **** FrontEnd Content **** //
-
-// Set views directory (html)
-const viewsDir = path.join(__dirname, 'views');
-app.set('views', viewsDir);
-
-// Set static directory (js and css).
-const staticDir = path.join(__dirname, 'public');
-app.use(express.static(staticDir));
-
-// Nav to users pg by default
-app.get('/', (_: Request, res: Response) => {
-  return res.redirect('/users');
-});
-
-// Redirect to login if not logged in.
-app.get('/users', (_: Request, res: Response) => {
-  return res.sendFile('users.html', { root: viewsDir });
-});
-
-/******************************************************************************
-                                Export default
-******************************************************************************/
+// Error handler
+app.use(errorHandler);
 
 export default app;
