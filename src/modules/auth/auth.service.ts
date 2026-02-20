@@ -47,8 +47,13 @@ async function getUserById(id: number): Promise<IUserSafe> {
   return excludePassword(user);
 }
 
+async function getUserPermission(id: number): Promise<string[]> {
+  const permissions = await UserRepo.getUserPermissions(id);
+  return permissions;
+}
 export default {
   login,
   register,
   getUserById,
+  getUserPermission,
 } as const;

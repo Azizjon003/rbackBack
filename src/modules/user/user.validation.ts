@@ -11,3 +11,17 @@ export const updateValidator = parseReq(
 );
 
 export const deleteValidator = parseReq(z.object({ id: z.coerce.number() }));
+
+export const addUserRoleValidator = parseReq(
+  z.object({
+    userId: z.coerce.number(),
+    roleIds: z.array(z.coerce.number()),
+  }),
+);
+
+export const addOrDeleteUserRoleValidator = parseReq(
+  z.object({
+    userId: z.coerce.number(),
+    permissionIds: z.array(z.coerce.number()),
+  }),
+);

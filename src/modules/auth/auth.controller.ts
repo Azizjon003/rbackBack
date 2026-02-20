@@ -1,10 +1,9 @@
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
+import type { Req, Res } from '@src/common/types';
 import ApiResponse from '@src/common/utils/response';
 
 import AuthService from './auth.service';
 import { loginValidator, registerValidator } from './auth.validation';
-
-import type { Req, Res } from '@src/common/types';
 
 const login = async (req: Req, res: Res) => {
   const { email, password } = loginValidator(req.body);
@@ -37,7 +36,9 @@ const me = async (req: Req, res: Res) => {
   }
 
   const user = await AuthService.getUserById(req.user.id);
-  ApiResponse.success(res, { user });
+  const userPermissions = await AuthService.getUserPermission(req.user.id);
+
+  ApiResponse.success(res, { user, permissions: userPermissions });
 };
 
 export default {

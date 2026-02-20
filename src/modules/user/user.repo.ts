@@ -84,7 +84,213 @@ async function deleteAllUsers(): Promise<void> {
 async function getById(id: number): Promise<IUser | null> {
   return prisma.user.findUnique({ where: { id } });
 }
+async function getUserPermissions(id: number): Promise<string[]> {
+  const user = await prisma.user.findUnique({
+    where: { id },
+    include: {
+      roles: {
+        include: {
+          role: {
+            include: {
+              permissions: {
+                include: { permission: true },
+              },
+            },
+          },
+        },
+      },
+      permissions: {
+        include: { permission: true },
+      },
+    },
+  });
 
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const rolePermissions = user.roles.flatMap((ur) =>
+    ur.role.permissions.map(
+      (rp) => `${rp.permission.action}:${rp.permission.resource}`,
+    ),
+  );
+
+  const directPermissions = user.permissions.map(
+    (up) => `${up.permission.action}:${up.permission.resource}`,
+  );
+
+  return [...new Set([...rolePermissions, ...directPermissions])];
+}
+
+async function addUserRoles(userId: number, roleIds: number[]) {
+  const [user, validRoles] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      include: { roles: true },
+    }),
+    prisma.role.findMany({
+      where: { id: { in: roleIds } },
+    }),
+  ]);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const validRoleIds = validRoles.map((r) => r.id);
+  const invalidRoleIds = roleIds.filter((id) => !validRoleIds.includes(id));
+  if (invalidRoleIds.length > 0) {
+    throw new Error(`Roles not found: ${invalidRoleIds.join(', ')}`);
+  }
+
+  const existingRoleIds = user.roles.map((ur) => ur.role_id);
+  const newRoleIds = validRoleIds.filter((id) => !existingRoleIds.includes(id));
+
+  if (newRoleIds.length > 0) {
+    await prisma.userRole.createMany({
+      data: newRoleIds.map((roleId) => ({
+        user_id: userId,
+        role_id: roleId,
+      })),
+    });
+  }
+
+  return prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      roles: { include: { role: true } },
+    },
+  });
+}
+
+async function deleteUserRoles(userId: number, roleIds: number[]) {
+  const [user, validRoles] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      include: { roles: true },
+    }),
+    prisma.role.findMany({
+      where: { id: { in: roleIds } },
+    }),
+  ]);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const validRoleIds = validRoles.map((r) => r.id);
+  const invalidRoleIds = roleIds.filter((id) => !validRoleIds.includes(id));
+  if (invalidRoleIds.length > 0) {
+    throw new Error(`Roles not found: ${invalidRoleIds.join(', ')}`);
+  }
+
+  const deleteRoleIds = user.roles
+    .filter((ur) => validRoleIds.includes(ur.role_id))
+    .map((ur) => ur.role_id);
+  await prisma.userRole.deleteMany({
+    where: {
+      user_id: userId,
+      role_id: { in: deleteRoleIds },
+    },
+  });
+
+  return prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      roles: { include: { role: true } },
+    },
+  });
+}
+
+async function addUserPermissions(userId: number, permissionIds: number[]) {
+  const [user, validPermissions] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      include: { permissions: true },
+    }),
+    prisma.permission.findMany({
+      where: { id: { in: permissionIds } },
+    }),
+  ]);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const validPermissionIds = validPermissions.map((p) => p.id);
+  const invalidPermissionIds = permissionIds.filter(
+    (id) => !validPermissionIds.includes(id),
+  );
+  if (invalidPermissionIds.length > 0) {
+    throw new Error(
+      `Permissions not found: ${invalidPermissionIds.join(', ')}`,
+    );
+  }
+
+  const existingPermissionIds = user.permissions.map((up) => up.permission_id);
+  const newPermissionIds = validPermissionIds.filter(
+    (id) => !existingPermissionIds.includes(id),
+  );
+
+  if (newPermissionIds.length > 0) {
+    await prisma.userPermission.createMany({
+      data: newPermissionIds.map((permissionId) => ({
+        user_id: userId,
+        permission_id: permissionId,
+      })),
+    });
+  }
+
+  return prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      permissions: { include: { permission: true } },
+    },
+  });
+}
+
+async function deleteUserPermissions(userId: number, permissionIds: number[]) {
+  const [user, validPermissions] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      include: { permissions: true },
+    }),
+    prisma.permission.findMany({
+      where: { id: { in: permissionIds } },
+    }),
+  ]);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const validPermissionIds = validPermissions.map((p) => p.id);
+  const invalidPermissionIds = permissionIds.filter(
+    (id) => !validPermissionIds.includes(id),
+  );
+  if (invalidPermissionIds.length > 0) {
+    throw new Error(
+      `Permissions not found: ${invalidPermissionIds.join(', ')}`,
+    );
+  }
+
+  const deletePermissionIds = user.permissions
+    .filter((up) => validPermissionIds.includes(up.permission_id))
+    .map((up) => up.permission_id);
+  await prisma.userPermission.deleteMany({
+    where: {
+      user_id: userId,
+      permission_id: { in: deletePermissionIds },
+    },
+  });
+
+  return prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      permissions: { include: { permission: true } },
+    },
+  });
+}
 export default {
   getOne,
   persists,
@@ -93,6 +299,11 @@ export default {
   update,
   delete: delete_,
   deleteAllUsers,
+  deleteUserRoles,
   getByEmail,
   getById,
+  getUserPermissions,
+  addUserRoles,
+  addUserPermissions,
+  deleteUserPermissions,
 } as const;
