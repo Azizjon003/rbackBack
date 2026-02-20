@@ -1,5 +1,6 @@
 import bcyrypt from 'bcrypt';
 
+import { Role } from '@src/common/constants/rbac';
 import prisma from '@src/common/prisma';
 import { IUser, IUserInput } from '@src/models/User.model';
 
@@ -34,6 +35,13 @@ async function add(user: IUserInput): Promise<IUser> {
       surname: user.surname,
       email: user.email,
       password: hash,
+      roles: {
+        create: {
+          role: {
+            connect: { name: Role.USER },
+          },
+        },
+      },
     },
   });
 
