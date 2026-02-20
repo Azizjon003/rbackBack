@@ -7,6 +7,8 @@ export enum Action {
 export enum Resource {
   USERS = 'USERS',
   ROLES = 'ROLES',
+  PAYMENTS = 'PAYMENTS',
+  REPORTS = 'REPORTS',
 }
 
 export enum Role {

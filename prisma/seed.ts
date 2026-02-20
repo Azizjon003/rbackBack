@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 const roles = ['ADMIN', 'USER', 'MODERATOR'] as const;
 
-const resources = ['USERS', 'ROLES'] as const;
+const resources = ['USERS', 'ROLES', 'PAYMENTS', 'REPORTS'] as const;
 const actions = ['READ', 'WRITE', 'DELETE'] as const;
 
 // Har bir rolga qaysi permissionlar beriladi
@@ -19,6 +19,8 @@ const rolePermissions: Record<string, { action: string; resource: string }[]> = 
   ],
   USER: [
     { action: 'READ', resource: 'USERS' },
+    { action: 'READ', resource: 'PAYMENTS' },
+    { action: 'READ', resource: 'REPORTS' },
   ],
 };
 
