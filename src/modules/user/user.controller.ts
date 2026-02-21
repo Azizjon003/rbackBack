@@ -24,7 +24,7 @@ async function add(req: Req, res: Res) {
 
 async function update(req: Req, res: Res) {
   const { user } = updateValidator(req.body);
-  await UserService.updateOne(user);
+  await UserService.updateOne(user); // remove password from update
   ApiResponse.success(res, null);
 }
 
@@ -58,6 +58,15 @@ async function deletePermission(req: Req, res: Res) {
   ApiResponse.success(res, user);
 }
 
+async function getRoles(req: Req, res: Res) {
+  const roles = await UserService.getRoles();
+  ApiResponse.success(res, { roles });
+}
+async function getPermissions(req: Req, res: Res) {
+  const permissions = await UserService.getPermissions();
+  ApiResponse.success(res, { permissions });
+}
+
 export default {
   getAll,
   add,
@@ -67,4 +76,6 @@ export default {
   deleteUserRole,
   addPermission,
   deletePermission,
+  getRoles,
+  getPermissions,
 } as const;

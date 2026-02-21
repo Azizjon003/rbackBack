@@ -1,7 +1,7 @@
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
 import { RouteError } from '@src/common/utils/route-errors';
 
-import { IUser, IUserInput } from './user.model';
+import { IUser, IUserInput, IUserUpdate } from './user.model';
 import UserRepo from './user.repo';
 
 const Errors = {
@@ -16,7 +16,7 @@ function addOne(user: IUserInput): Promise<IUser> {
   return UserRepo.add(user);
 }
 
-async function updateOne(user: IUserInput & { id: number }): Promise<void> {
+async function updateOne(user: IUserUpdate): Promise<void> {
   const persists = await UserRepo.persists(user.id);
   if (!persists) {
     throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.USER_NOT_FOUND);
@@ -62,6 +62,12 @@ async function deleteUserPermissions(userId: number, permissionIds: number[]) {
   }
   return UserRepo.deleteUserPermissions(userId, permissionIds);
 }
+async function getRoles() {
+  return UserRepo.getRoles();
+}
+async function getPermissions() {
+  return UserRepo.getPermissions();
+}
 
 export default {
   getAll,
@@ -72,4 +78,6 @@ export default {
   deleteUserRoles: deleteUserRole,
   addUserPermissions,
   deleteUserPermissions,
+  getRoles,
+  getPermissions,
 } as const;

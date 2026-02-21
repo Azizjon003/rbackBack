@@ -19,3 +19,4 @@ export interface IUser extends Entity {
 }
 
 export type IUserSafe = Omit<IUser, 'password'>;
+export type IUserUpdate = Omit<IUserInput, 'password'> & { id: number };

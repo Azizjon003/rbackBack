@@ -51,9 +51,14 @@ async function getUserPermission(id: number): Promise<string[]> {
   const permissions = await UserRepo.getUserPermissions(id);
   return permissions;
 }
+async function getUserRoles(id: number): Promise<string[]> {
+  const roles = await UserRepo.getUserRoles(id);
+  return roles;
+}
 export default {
   login,
   register,
   getUserById,
   getUserPermission,
+  getUserRoles,
 } as const;

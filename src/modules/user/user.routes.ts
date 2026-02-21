@@ -29,6 +29,12 @@ userRouter.delete(
   checkPermission(Action.DELETE, Resource.USERS),
   UserController.delete,
 );
+
+userRouter.get(
+  '/roles',
+  // checkPermission(Action.READ, Resource.ROLES),
+  UserController.getRoles,
+);
 userRouter.post(
   '/role/add',
   checkPermission(Action.WRITE, Resource.ROLES),
@@ -38,6 +44,12 @@ userRouter.post(
   '/role/delete',
   checkPermission(Action.WRITE, Resource.ROLES),
   UserController.deleteUserRole,
+);
+
+userRouter.get(
+  '/permissions',
+  // checkPermission(Action.READ, Resource.PERMISSIONS),
+  UserController.getPermissions,
 );
 userRouter.post(
   '/permission/add',

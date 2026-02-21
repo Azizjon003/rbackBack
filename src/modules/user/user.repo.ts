@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import { Role } from '@src/common/constants/rbac';
 import prisma from '@src/common/prisma';
 
-import { IUser, IUserInput } from './user.model';
+import { IUser, IUserInput, IUserUpdate } from './user.model';
 
 async function getOne(email: string): Promise<IUser | null> {
   return prisma.user.findFirst({ where: { email } });
@@ -14,8 +14,51 @@ async function persists(id: number): Promise<boolean> {
   return count > 0;
 }
 
-async function getAll(): Promise<IUser[]> {
-  return prisma.user.findMany();
+async function getAll(): Promise<any[]> {
+  const users = await prisma.user.findMany({
+    include: {
+      roles: {
+        include: {
+          role: {
+            include: {
+              permissions: {
+                include: { permission: true },
+              },
+            },
+          },
+        },
+      },
+      permissions: {
+        include: {
+          permission: {
+            include: {
+              roles: {
+                include: {
+                  role: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return users.map((user) => ({
+    ...user,
+    roles: user.roles.map((ur) => ur.role.name),
+    password: undefined,
+    permissions: [
+      ...user.permissions.map(
+        (up) => `${up.permission.action}:${up.permission.resource}`,
+      ),
+      ...user.roles.flatMap((ur) =>
+        ur.role.permissions.map(
+          (rp) => `${rp.permission.action}:${rp.permission.resource}`,
+        ),
+      ),
+    ],
+  }));
 }
 
 async function getByEmail(email: string): Promise<IUser | null> {
@@ -49,7 +92,7 @@ async function add(user: IUserInput): Promise<IUser> {
   return newUser;
 }
 
-async function update(user: IUserInput & { id: number }): Promise<void> {
+async function update(user: IUserUpdate): Promise<void> {
   const existingUser = await prisma.user.findUnique({ where: { id: user.id } });
   if (!existingUser) {
     throw new Error('User not found');
@@ -291,6 +334,21 @@ async function deleteUserPermissions(userId: number, permissionIds: number[]) {
     },
   });
 }
+async function getUserRoles(userId: number) {
+  const userRoles = await prisma.userRole.findMany({
+    where: { user_id: userId },
+    include: { role: true },
+  });
+  return userRoles.map((ur) => ur.role.name);
+}
+async function getRoles() {
+  const roles = await prisma.role.findMany();
+  return roles;
+}
+async function getPermissions() {
+  const permissions = await prisma.permission.findMany();
+  return permissions;
+}
 export default {
   getOne,
   persists,
@@ -306,4 +364,7 @@ export default {
   addUserRoles,
   addUserPermissions,
   deleteUserPermissions,
+  getUserRoles,
+  getRoles,
+  getPermissions,
 } as const;

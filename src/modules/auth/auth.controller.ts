@@ -37,8 +37,13 @@ const me = async (req: Req, res: Res) => {
 
   const user = await AuthService.getUserById(req.user.id);
   const userPermissions = await AuthService.getUserPermission(req.user.id);
+  const userRoles = await AuthService.getUserRoles(req.user.id);
 
-  ApiResponse.success(res, { user, permissions: userPermissions });
+  ApiResponse.success(res, {
+    user,
+    permissions: userPermissions,
+    roles: userRoles,
+  });
 };
 
 export default {
