@@ -1,42 +1,36 @@
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
-
-/******************************************************************************
-                                 Types
-******************************************************************************/
+import { ErrorMessage } from '@src/common/constants/errors';
 
 export interface ParseError {
   prop: string;
   message: string;
 }
 
-/******************************************************************************
-                                 Classes
-******************************************************************************/
-
-/**
- * Error with status code and message.
- */
 export class RouteError extends Error {
   public status: HttpStatusCodes;
+  public errorMessage: ErrorMessage;
 
-  public constructor(status: HttpStatusCodes, message: string) {
-    super(message);
+  public constructor(status: HttpStatusCodes, errorMessage: ErrorMessage) {
+    super(errorMessage.eng);
     this.status = status;
+    this.errorMessage = errorMessage;
   }
 }
 
-/**
- * Handle "parseObj" errors.
- */
 export class ValidationError extends RouteError {
-  public static MESSAGE =
-    'The parseObj() function discovered one or ' + 'more errors.';
+  public static MESSAGE: ErrorMessage = {
+    uz: 'Kiritilgan ma\'lumotlarda xatolik topildi',
+    eng: 'The parseObj() function discovered one or more errors.',
+  };
 
   public constructor(errors: ParseError[]) {
-    const msg = JSON.stringify({
-      message: ValidationError.MESSAGE,
-      errors,
-    });
+    const msg: ErrorMessage = {
+      uz: ValidationError.MESSAGE.uz,
+      eng: JSON.stringify({
+        message: ValidationError.MESSAGE.eng,
+        errors,
+      }),
+    };
     super(HttpStatusCodes.BAD_REQUEST, msg);
   }
 }

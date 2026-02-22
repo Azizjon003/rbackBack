@@ -1,14 +1,11 @@
 import bcrypt from 'bcrypt';
 
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
+import Errors from '@src/common/constants/errors';
 import Jwt from '@src/common/utils/jwt';
 import { RouteError } from '@src/common/utils/route-errors';
 import { IUser, IUserInput, IUserSafe } from '@src/modules/user/user.model';
 import UserRepo from '@src/modules/user/user.repo';
-
-const Errors = {
-  USER_NOT_FOUND: 'User not found',
-} as const;
 
 function excludePassword(user: IUser): IUserSafe {
   const { password, ...safeUser } = user;
@@ -24,7 +21,7 @@ async function login(email: string, password: string) {
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
-    throw new RouteError(HttpStatusCodes.UNAUTHORIZED, 'Invalid credentials');
+    throw new RouteError(HttpStatusCodes.UNAUTHORIZED, Errors.INVALID_CREDENTIALS);
   }
 
   const token = Jwt.generateToken({ id: user.id });

@@ -20,23 +20,18 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
-// Show routes called in console during development
 if (EnvVars.NodeEnv === NodeEnvs.DEV) {
   app.use(morgan('dev'));
 }
 
-// Security
 if (EnvVars.NodeEnv === NodeEnvs.PRODUCTION) {
-  // eslint-disable-next-line no-process-env
   if (!process.env.DISABLE_HELMET) {
     app.use(helmet());
   }
 }
 
-// API routes
 app.use('/api', apiRouter);
 
-// Error handler
 app.use(errorHandler);
 
 export default app;

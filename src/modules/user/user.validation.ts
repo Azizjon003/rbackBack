@@ -9,7 +9,7 @@ export const addValidator = parseReq(z.object({ user: UserSchema }));
 export const updateValidator = parseReq(
   z.object({
     user: UserSchema.extend({ id: z.number() }).omit({ password: true }),
-  }), // remove password from update
+  }),
 );
 
 export const deleteValidator = parseReq(z.object({ id: z.coerce.number() }));

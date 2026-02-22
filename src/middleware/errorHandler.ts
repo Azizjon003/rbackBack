@@ -11,8 +11,13 @@ function errorHandler(err: Error, _: Request, res: Response, next: NextFunction)
   let status: HttpStatusCodes = HttpStatusCodes.BAD_REQUEST;
   if (err instanceof RouteError) {
     status = err.status;
+    res.status(status).json({ success: false, message: err.errorMessage });
+    return next(err);
   }
-  res.status(status).json({ success: false, message: err.message });
+  res.status(status).json({
+    success: false,
+    message: { uz: err.message, eng: err.message },
+  });
   return next(err);
 }
 

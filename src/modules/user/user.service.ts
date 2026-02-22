@@ -1,12 +1,9 @@
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
+import Errors from '@src/common/constants/errors';
 import { RouteError } from '@src/common/utils/route-errors';
 
 import { IUser, IUserInput, IUserUpdate } from './user.model';
 import UserRepo from './user.repo';
-
-const Errors = {
-  USER_NOT_FOUND: 'User not found',
-} as const;
 
 function getAll(): Promise<IUser[]> {
   return UserRepo.getAll();

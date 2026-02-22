@@ -1,4 +1,5 @@
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
+import Errors from '@src/common/constants/errors';
 import type { Req, Res } from '@src/common/types';
 import ApiResponse from '@src/common/utils/response';
 
@@ -17,7 +18,7 @@ const register = async (req: Req, res: Res) => {
     registerValidator(req.body);
 
   if (password !== repeatedPassword) {
-    return ApiResponse.error(res, 'Passwords do not match');
+    return ApiResponse.error(res, Errors.PASSWORDS_DO_NOT_MATCH);
   }
 
   const result = await AuthService.register({
@@ -32,7 +33,7 @@ const register = async (req: Req, res: Res) => {
 
 const me = async (req: Req, res: Res) => {
   if (!req.user) {
-    return ApiResponse.error(res, 'Unauthorized', HttpStatusCodes.UNAUTHORIZED);
+    return ApiResponse.error(res, Errors.UNAUTHORIZED, HttpStatusCodes.UNAUTHORIZED);
   }
 
   const user = await AuthService.getUserById(req.user.id);

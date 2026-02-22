@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
+import Errors from '@src/common/constants/errors';
 import { Action, Resource } from '@src/common/constants/rbac';
 import prisma from '@src/common/prisma';
 
@@ -9,13 +10,12 @@ function checkPermission(action: Action, resource: Resource) {
     if (!req.user) {
       res
         .status(HttpStatusCodes.UNAUTHORIZED)
-        .json({ success: false, message: 'Unauthorized' });
+        .json({ success: false, message: Errors.UNAUTHORIZED });
       return;
     }
 
     const userId = req.user.id;
 
-    // User ga to'g'ridan-to'g'ri berilgan permission
     const directPermission = await prisma.userPermission.findFirst({
       where: {
         user_id: userId,
@@ -28,7 +28,6 @@ function checkPermission(action: Action, resource: Resource) {
       return;
     }
 
-    // User ning rollari orqali berilgan permission
     const rolePermission = await prisma.rolePermission.findFirst({
       where: {
         permission: { action, resource },
@@ -45,7 +44,7 @@ function checkPermission(action: Action, resource: Resource) {
 
     res
       .status(HttpStatusCodes.FORBIDDEN)
-      .json({ success: false, message: 'Forbidden: insufficient permission' });
+      .json({ success: false, message: Errors.FORBIDDEN });
   };
 }
 

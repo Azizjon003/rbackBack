@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
+import Errors from '@src/common/constants/errors';
 import Jwt, { JwtPayload } from '@src/common/utils/jwt';
 
 declare module 'express' {
@@ -15,7 +16,7 @@ function authMiddleware(req: Request, res: Response, next: NextFunction) {
   if (!authHeader?.startsWith('Bearer ')) {
     res
       .status(HttpStatusCodes.UNAUTHORIZED)
-      .json({ success: false, message: 'Token not provided' });
+      .json({ success: false, message: Errors.TOKEN_NOT_PROVIDED });
     return;
   }
 
@@ -28,7 +29,7 @@ function authMiddleware(req: Request, res: Response, next: NextFunction) {
   } catch {
     res
       .status(HttpStatusCodes.UNAUTHORIZED)
-      .json({ success: false, message: 'Invalid or expired token' });
+      .json({ success: false, message: Errors.INVALID_OR_EXPIRED_TOKEN });
   }
 }
 

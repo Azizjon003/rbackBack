@@ -24,7 +24,7 @@ async function add(req: Req, res: Res) {
 
 async function update(req: Req, res: Res) {
   const { user } = updateValidator(req.body);
-  await UserService.updateOne(user); // remove password from update
+  await UserService.updateOne(user);
   ApiResponse.success(res, null);
 }
 

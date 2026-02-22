@@ -1,7 +1,10 @@
 import bcrypt from 'bcrypt';
 
+import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
+import Errors from '@src/common/constants/errors';
 import { Role } from '@src/common/constants/rbac';
 import prisma from '@src/common/prisma';
+import { RouteError } from '@src/common/utils/route-errors';
 
 import { IUser, IUserInput, IUserUpdate } from './user.model';
 
@@ -68,7 +71,7 @@ async function getByEmail(email: string): Promise<IUser | null> {
 async function add(user: IUserInput): Promise<IUser> {
   const isUser = await prisma.user.findFirst({ where: { email: user.email } });
   if (isUser) {
-    throw new Error('User with this email already exists');
+    throw new RouteError(HttpStatusCodes.BAD_REQUEST, Errors.USER_ALREADY_EXISTS);
   }
 
   const saltRounds = 10;
@@ -95,7 +98,7 @@ async function add(user: IUserInput): Promise<IUser> {
 async function update(user: IUserUpdate): Promise<void> {
   const existingUser = await prisma.user.findUnique({ where: { id: user.id } });
   if (!existingUser) {
-    throw new Error('User not found');
+    throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.USER_NOT_FOUND);
   }
 
   const existEmailUser = await prisma.user.findFirst({
@@ -105,7 +108,7 @@ async function update(user: IUserUpdate): Promise<void> {
     },
   });
   if (existEmailUser) {
-    throw new Error('Another user with this email already exists');
+    throw new RouteError(HttpStatusCodes.BAD_REQUEST, Errors.EMAIL_ALREADY_TAKEN);
   }
   await prisma.user.update({
     where: { id: user.id },
@@ -149,7 +152,7 @@ async function getUserPermissions(id: number): Promise<string[]> {
   });
 
   if (!user) {
-    throw new Error('User not found');
+    throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.USER_NOT_FOUND);
   }
 
   const rolePermissions = user.roles.flatMap((ur) =>
@@ -177,13 +180,13 @@ async function addUserRoles(userId: number, roleIds: number[]) {
   ]);
 
   if (!user) {
-    throw new Error('User not found');
+    throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.USER_NOT_FOUND);
   }
 
   const validRoleIds = validRoles.map((r) => r.id);
   const invalidRoleIds = roleIds.filter((id) => !validRoleIds.includes(id));
   if (invalidRoleIds.length > 0) {
-    throw new Error(`Roles not found: ${invalidRoleIds.join(', ')}`);
+    throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.ROLES_NOT_FOUND(invalidRoleIds));
   }
 
   const existingRoleIds = user.roles.map((ur) => ur.role_id);
@@ -218,13 +221,13 @@ async function deleteUserRoles(userId: number, roleIds: number[]) {
   ]);
 
   if (!user) {
-    throw new Error('User not found');
+    throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.USER_NOT_FOUND);
   }
 
   const validRoleIds = validRoles.map((r) => r.id);
   const invalidRoleIds = roleIds.filter((id) => !validRoleIds.includes(id));
   if (invalidRoleIds.length > 0) {
-    throw new Error(`Roles not found: ${invalidRoleIds.join(', ')}`);
+    throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.ROLES_NOT_FOUND(invalidRoleIds));
   }
 
   const deleteRoleIds = user.roles
@@ -257,7 +260,7 @@ async function addUserPermissions(userId: number, permissionIds: number[]) {
   ]);
 
   if (!user) {
-    throw new Error('User not found');
+    throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.USER_NOT_FOUND);
   }
 
   const validPermissionIds = validPermissions.map((p) => p.id);
@@ -265,9 +268,7 @@ async function addUserPermissions(userId: number, permissionIds: number[]) {
     (id) => !validPermissionIds.includes(id),
   );
   if (invalidPermissionIds.length > 0) {
-    throw new Error(
-      `Permissions not found: ${invalidPermissionIds.join(', ')}`,
-    );
+    throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.PERMISSIONS_NOT_FOUND(invalidPermissionIds));
   }
 
   const existingPermissionIds = user.permissions.map((up) => up.permission_id);
@@ -304,7 +305,7 @@ async function deleteUserPermissions(userId: number, permissionIds: number[]) {
   ]);
 
   if (!user) {
-    throw new Error('User not found');
+    throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.USER_NOT_FOUND);
   }
 
   const validPermissionIds = validPermissions.map((p) => p.id);
@@ -312,9 +313,7 @@ async function deleteUserPermissions(userId: number, permissionIds: number[]) {
     (id) => !validPermissionIds.includes(id),
   );
   if (invalidPermissionIds.length > 0) {
-    throw new Error(
-      `Permissions not found: ${invalidPermissionIds.join(', ')}`,
-    );
+    throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.PERMISSIONS_NOT_FOUND(invalidPermissionIds));
   }
 
   const deletePermissionIds = user.permissions
