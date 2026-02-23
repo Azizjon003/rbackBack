@@ -48,6 +48,14 @@ const Errors = {
     uz: `Ruxsatlar topilmadi: ${ids.join(', ')}`,
     eng: `Permissions not found: ${ids.join(', ')}`,
   }),
+  CANNOT_MODIFY_OWN_ROLES: {
+    uz: "O'z rollaringizni o'zgartirishga ruxsat yo'q",
+    eng: 'You cannot modify your own roles',
+  },
+  CANNOT_DELETE_SELF: {
+    uz: "O'zingizni o'chirishga ruxsat yo'q",
+    eng: 'You cannot delete yourself',
+  },
   ADMIN_ROLE_RESTRICTED: {
     uz: 'Admin rolini API orqali tayinlash taqiqlangan',
     eng: 'Assigning admin role via API is restricted',
@@ -55,6 +63,18 @@ const Errors = {
   ADMIN_ROLE_PROTECTED: {
     uz: 'Admin rolini API orqali olib tashlash taqiqlangan',
     eng: 'Removing admin role via API is restricted',
+  },
+  PAYMENT_NOT_FOUND: {
+    uz: "To'lov topilmadi",
+    eng: 'Payment not found',
+  },
+  PAYMENT_ORDER_EXISTS: {
+    uz: "Bu buyurtma raqami bilan to'lov allaqachon mavjud",
+    eng: 'Payment with this order ID already exists',
+  },
+  REPORT_NOT_FOUND: {
+    uz: 'Hisobot topilmadi',
+    eng: 'Report not found',
   },
   VALIDATION_ERROR: {
     uz: "Kiritilgan ma'lumotlarda xatolik topildi",

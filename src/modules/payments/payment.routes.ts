@@ -14,5 +14,20 @@ paymentRouter.get(
   checkPermission(Action.READ, Resource.PAYMENTS),
   PaymentController.getAll,
 );
+paymentRouter.post(
+  '/add',
+  checkPermission(Action.WRITE, Resource.PAYMENTS),
+  PaymentController.add,
+);
+paymentRouter.put(
+  '/update',
+  checkPermission(Action.WRITE, Resource.PAYMENTS),
+  PaymentController.update,
+);
+paymentRouter.delete(
+  '/delete/:id',
+  checkPermission(Action.DELETE, Resource.PAYMENTS),
+  PaymentController.remove,
+);
 
 export default paymentRouter;

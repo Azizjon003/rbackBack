@@ -84,3 +84,34 @@ model UserPermission {
   @@id([user_id, permission_id])
   @@map("user_permissions")
 }
+
+model Payment {
+  id            Int      @id @default(autoincrement())
+  order_id      String   @unique
+  amount        Float
+  currency      String   @default("UZS")
+  status        String
+  method        String
+  customer_name String
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("payments")
+}
+
+model Report {
+  id           Int      @id @default(autoincrement())
+  title        String
+  type         String
+  period       String
+  total_amount Float?
+  total_orders Int?
+  total_users  Int?
+  active_users Int?
+  success_rate Float?
+  status       String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@map("reports")
+}

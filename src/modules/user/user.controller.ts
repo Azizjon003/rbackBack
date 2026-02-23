@@ -30,31 +30,31 @@ async function update(req: Req, res: Res) {
 
 async function delete_(req: Req, res: Res) {
   const { id } = deleteValidator(req.params);
-  await UserService.delete(id);
+  await UserService.delete(id, req.user!.id);
   ApiResponse.success(res, null);
 }
 
 async function addUserRole(req: Req, res: Res) {
   const { userId, roleIds } = addUserRoleValidator(req.body);
-  const user = await UserService.addUserRoles(userId, roleIds);
+  const user = await UserService.addUserRoles(userId, roleIds, req.user!.id);
   ApiResponse.success(res, user, HttpStatusCodes.CREATED);
 }
 
 async function deleteUserRole(req: Req, res: Res) {
   const { userId, roleIds } = addUserRoleValidator(req.body);
-  const user = await UserService.deleteUserRoles(userId, roleIds);
+  const user = await UserService.deleteUserRoles(userId, roleIds, req.user!.id);
   ApiResponse.success(res, user);
 }
 
 async function addPermission(req: Req, res: Res) {
   const { userId, permissionIds } = addOrDeleteUserRoleValidator(req.body);
-  const user = await UserService.addUserPermissions(userId, permissionIds);
+  const user = await UserService.addUserPermissions(userId, permissionIds, req.user!.id);
   ApiResponse.success(res, user, HttpStatusCodes.CREATED);
 }
 
 async function deletePermission(req: Req, res: Res) {
   const { userId, permissionIds } = addOrDeleteUserRoleValidator(req.body);
-  const user = await UserService.deleteUserPermissions(userId, permissionIds);
+  const user = await UserService.deleteUserPermissions(userId, permissionIds, req.user!.id);
   ApiResponse.success(res, user);
 }
 

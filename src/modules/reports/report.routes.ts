@@ -14,5 +14,20 @@ reportRouter.get(
   checkPermission(Action.READ, Resource.REPORTS),
   ReportController.getAll,
 );
+reportRouter.post(
+  '/add',
+  checkPermission(Action.WRITE, Resource.REPORTS),
+  ReportController.add,
+);
+reportRouter.put(
+  '/update',
+  checkPermission(Action.WRITE, Resource.REPORTS),
+  ReportController.update,
+);
+reportRouter.delete(
+  '/delete/:id',
+  checkPermission(Action.DELETE, Resource.REPORTS),
+  ReportController.remove,
+);
 
 export default reportRouter;

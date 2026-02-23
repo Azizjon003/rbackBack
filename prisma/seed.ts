@@ -106,6 +106,34 @@ async function main() {
   } else {
     console.log('Admin user already exists');
   }
+
+  const paymentsCount = await prisma.payment.count();
+  if (paymentsCount === 0) {
+    await prisma.payment.createMany({
+      data: [
+        { order_id: 'ORD-001', amount: 150000, currency: 'UZS', status: 'completed', method: 'card', customer_name: 'Alisher Karimov' },
+        { order_id: 'ORD-002', amount: 85000, currency: 'UZS', status: 'pending', method: 'cash', customer_name: 'Nodira Sultonova' },
+        { order_id: 'ORD-003', amount: 320000, currency: 'UZS', status: 'completed', method: 'transfer', customer_name: 'Sardor Rahimov' },
+        { order_id: 'ORD-004', amount: 47500, currency: 'UZS', status: 'failed', method: 'card', customer_name: 'Dilnoza Ergasheva' },
+        { order_id: 'ORD-005', amount: 210000, currency: 'UZS', status: 'completed', method: 'card', customer_name: 'Bekzod Tursunov' },
+      ],
+    });
+    console.log('Payments seeded');
+  }
+
+  const reportsCount = await prisma.report.count();
+  if (reportsCount === 0) {
+    await prisma.report.createMany({
+      data: [
+        { title: 'Oylik sotuvlar hisoboti', type: 'sales', period: '2026-01', total_amount: 1250000, total_orders: 48, status: 'ready' },
+        { title: 'Foydalanuvchilar statistikasi', type: 'users', period: '2026-01', total_users: 120, active_users: 87, status: 'ready' },
+        { title: 'Haftalik daromad hisoboti', type: 'revenue', period: '2026-02-W2', total_amount: 430000, total_orders: 15, status: 'ready' },
+        { title: "To'lovlar tahlili", type: 'payments', period: '2026-02', total_amount: 812500, success_rate: 94.5, status: 'processing' },
+        { title: 'Yillik moliyaviy hisobot', type: 'finance', period: '2025', total_amount: 15800000, total_orders: 562, status: 'ready' },
+      ],
+    });
+    console.log('Reports seeded');
+  }
 }
 
 main()

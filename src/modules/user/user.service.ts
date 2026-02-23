@@ -21,14 +21,20 @@ async function updateOne(user: IUserUpdate): Promise<void> {
   return UserRepo.update(user);
 }
 
-async function deleteOne(id: number): Promise<void> {
+async function deleteOne(id: number, currentUserId: number): Promise<void> {
+  if (id === currentUserId) {
+    throw new RouteError(HttpStatusCodes.FORBIDDEN, Errors.CANNOT_DELETE_SELF);
+  }
   const persists = await UserRepo.persists(id);
   if (!persists) {
     throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.USER_NOT_FOUND);
   }
   return UserRepo.delete(id);
 }
-async function addUserRole(userId: number, roleIds: number[]) {
+async function addUserRole(userId: number, roleIds: number[], currentUserId: number) {
+  if (userId === currentUserId) {
+    throw new RouteError(HttpStatusCodes.FORBIDDEN, Errors.CANNOT_MODIFY_OWN_ROLES);
+  }
   const persists = await UserRepo.persists(userId);
   if (!persists) {
     throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.USER_NOT_FOUND);
@@ -36,7 +42,10 @@ async function addUserRole(userId: number, roleIds: number[]) {
   return UserRepo.addUserRoles(userId, roleIds);
 }
 
-async function deleteUserRole(userId: number, roleIds: number[]) {
+async function deleteUserRole(userId: number, roleIds: number[], currentUserId: number) {
+  if (userId === currentUserId) {
+    throw new RouteError(HttpStatusCodes.FORBIDDEN, Errors.CANNOT_MODIFY_OWN_ROLES);
+  }
   const persists = await UserRepo.persists(userId);
   if (!persists) {
     throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.USER_NOT_FOUND);
@@ -44,7 +53,10 @@ async function deleteUserRole(userId: number, roleIds: number[]) {
   return UserRepo.deleteUserRoles(userId, roleIds);
 }
 
-async function addUserPermissions(userId: number, permissionIds: number[]) {
+async function addUserPermissions(userId: number, permissionIds: number[], currentUserId: number) {
+  if (userId === currentUserId) {
+    throw new RouteError(HttpStatusCodes.FORBIDDEN, Errors.CANNOT_MODIFY_OWN_ROLES);
+  }
   const persists = await UserRepo.persists(userId);
   if (!persists) {
     throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.USER_NOT_FOUND);
@@ -52,7 +64,10 @@ async function addUserPermissions(userId: number, permissionIds: number[]) {
   return UserRepo.addUserPermissions(userId, permissionIds);
 }
 
-async function deleteUserPermissions(userId: number, permissionIds: number[]) {
+async function deleteUserPermissions(userId: number, permissionIds: number[], currentUserId: number) {
+  if (userId === currentUserId) {
+    throw new RouteError(HttpStatusCodes.FORBIDDEN, Errors.CANNOT_MODIFY_OWN_ROLES);
+  }
   const persists = await UserRepo.persists(userId);
   if (!persists) {
     throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.USER_NOT_FOUND);
