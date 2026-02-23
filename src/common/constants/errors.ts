@@ -76,6 +76,10 @@ const Errors = {
     uz: 'Hisobot topilmadi',
     eng: 'Report not found',
   },
+  ONLY_READ_PERMISSIONS_ALLOWED: {
+    uz: "Faqat o'qish (READ) huquqlarini berish mumkin",
+    eng: 'Only READ permissions can be directly assigned',
+  },
   VALIDATION_ERROR: {
     uz: "Kiritilgan ma'lumotlarda xatolik topildi",
     eng: 'Validation error found in input data',

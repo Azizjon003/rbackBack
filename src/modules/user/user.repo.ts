@@ -281,6 +281,11 @@ async function addUserPermissions(userId: number, permissionIds: number[]) {
     throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.PERMISSIONS_NOT_FOUND(invalidPermissionIds));
   }
 
+  const hasNonReadPermission = validPermissions.some((p) => p.action !== 'READ');
+  if (hasNonReadPermission) {
+    throw new RouteError(HttpStatusCodes.FORBIDDEN, Errors.ONLY_READ_PERMISSIONS_ALLOWED);
+  }
+
   const existingPermissionIds = user.permissions.map((up) => up.permission_id);
   const newPermissionIds = validPermissionIds.filter(
     (id) => !existingPermissionIds.includes(id),
