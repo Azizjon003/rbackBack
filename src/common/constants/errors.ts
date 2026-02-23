@@ -48,6 +48,14 @@ const Errors = {
     uz: `Ruxsatlar topilmadi: ${ids.join(', ')}`,
     eng: `Permissions not found: ${ids.join(', ')}`,
   }),
+  ADMIN_ROLE_RESTRICTED: {
+    uz: 'Admin rolini API orqali tayinlash taqiqlangan',
+    eng: 'Assigning admin role via API is restricted',
+  },
+  ADMIN_ROLE_PROTECTED: {
+    uz: 'Admin rolini API orqali olib tashlash taqiqlangan',
+    eng: 'Removing admin role via API is restricted',
+  },
   VALIDATION_ERROR: {
     uz: "Kiritilgan ma'lumotlarda xatolik topildi",
     eng: 'Validation error found in input data',

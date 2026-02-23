@@ -189,6 +189,11 @@ async function addUserRoles(userId: number, roleIds: number[]) {
     throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.ROLES_NOT_FOUND(invalidRoleIds));
   }
 
+  const hasAdminRole = validRoles.some((r) => r.name === Role.ADMIN);
+  if (hasAdminRole) {
+    throw new RouteError(HttpStatusCodes.FORBIDDEN, Errors.ADMIN_ROLE_RESTRICTED);
+  }
+
   const existingRoleIds = user.roles.map((ur) => ur.role_id);
   const newRoleIds = validRoleIds.filter((id) => !existingRoleIds.includes(id));
 
@@ -228,6 +233,11 @@ async function deleteUserRoles(userId: number, roleIds: number[]) {
   const invalidRoleIds = roleIds.filter((id) => !validRoleIds.includes(id));
   if (invalidRoleIds.length > 0) {
     throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.ROLES_NOT_FOUND(invalidRoleIds));
+  }
+
+  const hasAdminRole = validRoles.some((r) => r.name === Role.ADMIN);
+  if (hasAdminRole) {
+    throw new RouteError(HttpStatusCodes.FORBIDDEN, Errors.ADMIN_ROLE_PROTECTED);
   }
 
   const deleteRoleIds = user.roles

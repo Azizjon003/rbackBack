@@ -15,4 +15,6 @@ export enum Role {
   ADMIN = 'ADMIN',
   USER = 'USER',
   MODERATOR = 'MODERATOR',
+  PAYMENT = 'PAYMENT',
+  REPORTS = 'REPORTS',
 }
